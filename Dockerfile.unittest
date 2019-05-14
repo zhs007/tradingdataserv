@@ -1,0 +1,13 @@
+FROM golang:1.12
+
+MAINTAINER zerro "zerrozhao@gmail.com"
+
+WORKDIR /src/tradingdataserv
+
+COPY ./go.* /src/tradingdataserv/
+
+RUN go mod download
+
+COPY . /src/tradingdataserv
+
+RUN go test ./... -cover
