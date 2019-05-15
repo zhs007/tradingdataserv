@@ -1,0 +1,16 @@
+# TradingData server config file
+
+# bind addr
+bindaddr: 127.0.0.1:7051
+
+# http server address
+httpaddr: 127.0.0.1:7053
+
+# ankadb config
+ankadb:
+  # dbpath
+  dbpath: './dat'
+  # engine
+  engine: 'leveldb'
+  # httpaddr
+  httpaddr: ''

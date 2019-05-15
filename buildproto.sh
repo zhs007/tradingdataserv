@@ -1,0 +1,1 @@
+protoc -I proto/ proto/tradingdata.proto --go_out=plugins=grpc:proto
