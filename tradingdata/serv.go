@@ -57,7 +57,7 @@ func (s *tradingDataServ) Stop() {
 }
 
 func (s *tradingDataServ) SendTradeData(context.Context,
-	*tradingdatapb.SendTradeData) (*tradingdatapb.ReplySendTradeData, error) {
+	*tradingdatapb.TradeDataChunk) (*tradingdatapb.ReplySendTradeData, error) {
 
 	return &tradingdatapb.ReplySendTradeData{}, nil
 }

@@ -13,7 +13,7 @@ message TradeInfo {
     float size = 4;
 }
 
-message SendTradeData {
+message TradeDataChunk {
     string market = 1;
     string symbol = 2;
     repeated TradeInfo trades = 3;
@@ -27,5 +27,5 @@ message ReplySendTradeData {
 // TradingDataService - tradingdata service
 service TradingDataService {
     // translate - translate text
-    rpc sendTradeData(SendTradeData) returns (ReplySendTradeData) {}
+    rpc sendTradeData(TradeDataChunk) returns (ReplySendTradeData) {}
 }
