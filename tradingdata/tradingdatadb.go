@@ -15,8 +15,8 @@ type tradingDataDB struct {
 	ankaDB ankadb.AnkaDB
 }
 
-// newDTDataDB - new dtdata db
-func newDTDataDB(dbpath string, httpAddr string, engine string) (*tradingDataDB, error) {
+// newTradingDataDB - new tradingdata db
+func newTradingDataDB(dbpath string, httpAddr string, engine string) (*tradingDataDB, error) {
 	cfg := ankadb.NewConfig()
 
 	cfg.AddrHTTP = httpAddr
@@ -29,12 +29,12 @@ func newDTDataDB(dbpath string, httpAddr string, engine string) (*tradingDataDB,
 
 	ankaDB, err := ankadb.NewAnkaDB(cfg, nil)
 	if ankaDB == nil {
-		jarvisbase.Error("newDTDataDB", zap.Error(err))
+		jarvisbase.Error("newTradingDataDB", zap.Error(err))
 
 		return nil, err
 	}
 
-	jarvisbase.Info("newDTDataDB", zap.String("dbpath", dbpath),
+	jarvisbase.Info("newTradingDataDB", zap.String("dbpath", dbpath),
 		zap.String("httpAddr", httpAddr), zap.String("engine", engine))
 
 	db := &tradingDataDB{

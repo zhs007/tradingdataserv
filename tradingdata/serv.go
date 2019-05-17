@@ -17,13 +17,15 @@ type tradingDataServ struct {
 	node     jarviscore.JarvisNode
 	lis      net.Listener
 	grpcServ *grpc.Server
+	db       *tradingDataDB
 }
 
 // newTradingDataServ -
 func newTradingDataServ(node jarviscore.JarvisNode, cfg *Config) (*tradingDataServ, error) {
 	lis, err := net.Listen("tcp", cfg.BindAddr)
 	if err != nil {
-		jarvisbase.Error("newTradingDataServ", zap.Error(err))
+		jarvisbase.Error("newTradingDataServ:Listen",
+			zap.Error(err))
 
 		return nil, err
 	}
@@ -33,10 +35,19 @@ func newTradingDataServ(node jarviscore.JarvisNode, cfg *Config) (*tradingDataSe
 
 	grpcServ := grpc.NewServer()
 
+	db, err := newTradingDataDB(cfg.AnkaDB.DBPath, cfg.AnkaDB.HTTPAddr, cfg.AnkaDB.Engine)
+	if err != nil {
+		jarvisbase.Error("newTradingDataServ:newTradingDataDB",
+			zap.Error(err))
+
+		return nil, err
+	}
+
 	s := &tradingDataServ{
 		node:     node,
 		lis:      lis,
 		grpcServ: grpcServ,
+		db:       db,
 	}
 
 	tradingdatapb.RegisterTradingDataServiceServer(grpcServ, s)
@@ -56,8 +67,36 @@ func (s *tradingDataServ) Stop() {
 	return
 }
 
-func (s *tradingDataServ) SendTradeData(context.Context,
-	*tradingdatapb.TradeDataChunk) (*tradingdatapb.ReplySendTradeData, error) {
+func (s *tradingDataServ) SendTradeData(ctx context.Context,
+	chunk *tradingdatapb.TradeDataChunk) (*tradingdatapb.ReplySendTradeData, error) {
 
-	return &tradingdatapb.ReplySendTradeData{}, nil
+	lastlst := chunk.Trades
+	for {
+		retlst, lastlst, ts, err := getTradeDataWithDay(&lastlst)
+		if err != nil {
+			jarvisbase.Error("tradingDataServ.SendTradeData:getTradeDataWithDay",
+				zap.Error(err))
+
+			return &tradingdatapb.ReplySendTradeData{
+				Nums:    0,
+				ErrInfo: err.Error(),
+			}, nil
+		}
+
+		if retlst != nil {
+			s.db.addTradeData(ctx, ts, &tradingdatapb.TradeDataChunk{
+				Market: chunk.Market,
+				Symbol: chunk.Symbol,
+				Trades: retlst,
+			})
+		}
+
+		if len(lastlst) == 0 {
+			break
+		}
+	}
+
+	return &tradingdatapb.ReplySendTradeData{
+		Nums: int32(len(chunk.Trades)),
+	}, nil
 }

@@ -13,23 +13,25 @@ func makeTradeDataChunkKey(market string, symbol string, ts int64) string {
 	return fmt.Sprintf("%v:%v:%v", market, symbol, tm.Format("20060102150405"))
 }
 
-func insertTradeData(lst []*tradingdatapb.TradeInfo, index int,
+func insertTradeData(lst *[]*tradingdatapb.TradeInfo, index int,
 	trade *tradingdatapb.TradeInfo) ([]*tradingdatapb.TradeInfo, error) {
 
 	if index <= 0 {
-		return append([]*tradingdatapb.TradeInfo{trade}, lst[0:]...), nil
+		return append([]*tradingdatapb.TradeInfo{trade}, (*lst)[0:]...), nil
 	}
 
-	if index >= len(lst) {
-		return append(lst, trade), nil
+	if index >= len(*lst) {
+		return append(*lst, trade), nil
 	}
 
-	lstf := append(lst[0:index], trade)
+	lstf := append((*lst)[0:index], trade)
 
-	return append(lstf, lst[index:]...), nil
+	return append(lstf, (*lst)[index:]...), nil
 }
 
-func insert2TradeDataChunk(chunk *tradingdatapb.TradeDataChunk, trade *tradingdatapb.TradeInfo) error {
+func insert2TradeDataChunk(chunk *tradingdatapb.TradeDataChunk,
+	trade *tradingdatapb.TradeInfo) error {
+
 	for i, v := range chunk.Trades {
 		if v.Curtime == trade.Curtime {
 			if v.Id == trade.Id {
@@ -38,7 +40,7 @@ func insert2TradeDataChunk(chunk *tradingdatapb.TradeDataChunk, trade *tradingda
 		}
 
 		if v.Curtime > trade.Curtime {
-			lst, err := insertTradeData(chunk.Trades, i, trade)
+			lst, err := insertTradeData(&chunk.Trades, i, trade)
 			if err != nil {
 				return err
 			}
@@ -49,7 +51,7 @@ func insert2TradeDataChunk(chunk *tradingdatapb.TradeDataChunk, trade *tradingda
 		}
 	}
 
-	lst, err := insertTradeData(chunk.Trades, len(chunk.Trades), trade)
+	lst, err := insertTradeData(&chunk.Trades, len(chunk.Trades), trade)
 	if err != nil {
 		return err
 	}
@@ -57,4 +59,33 @@ func insert2TradeDataChunk(chunk *tradingdatapb.TradeDataChunk, trade *tradingda
 	chunk.Trades = lst
 
 	return nil
+}
+
+func getTradeDataWithDay(lst *[]*tradingdatapb.TradeInfo) ([]*tradingdatapb.TradeInfo,
+	[]*tradingdatapb.TradeInfo, int64, error) {
+
+	if len(*lst) <= 0 {
+		return nil, nil, 0, nil
+	}
+
+	var lastlst []*tradingdatapb.TradeInfo
+	var retlst []*tradingdatapb.TradeInfo
+
+	ts := (*lst)[0].Curtime
+	tm := time.Unix(ts, 0)
+	td := tm.Format("20060102150405")
+
+	for _, v := range *lst {
+		cts := v.Curtime
+		ctm := time.Unix(cts, 0)
+		ctd := ctm.Format("20060102150405")
+
+		if ctd == td {
+			retlst = append(retlst, v)
+		} else {
+			lastlst = append(lastlst, v)
+		}
+	}
+
+	return retlst, lastlst, ts, nil
 }
