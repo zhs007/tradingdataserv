@@ -7,16 +7,18 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// AnkaDBConfig - AnkaDBConfig
+type AnkaDBConfig struct {
+	DBPath   string
+	Engine   string
+	HTTPAddr string
+}
+
 // Config - config
 type Config struct {
 	BindAddr string
 	HTTPAddr string
-
-	AnkaDB struct {
-		DBPath   string
-		Engine   string
-		HTTPAddr string
-	}
+	AnkaDB   AnkaDBConfig
 }
 
 // LoadConfig - load config
