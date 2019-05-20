@@ -105,3 +105,118 @@ func TestInsertTradeData(t *testing.T) {
 
 	t.Logf("TestInsertTradeData is OK")
 }
+
+func TestInsert2TradeDataChunk(t *testing.T) {
+	chunk := &tradingdatapb.TradeDataChunk{}
+	t2 := &tradingdatapb.TradeInfo{
+		Id:      "2",
+		Curtime: 2,
+	}
+
+	err := insert2TradeDataChunk(chunk, t2)
+	if err != nil || len(chunk.Trades) != 1 {
+		t.Fatalf("TestInsert2TradeDataChunk 2 %v", chunk)
+
+		return
+	}
+
+	t5 := &tradingdatapb.TradeInfo{
+		Id:      "5",
+		Curtime: 5,
+	}
+
+	err = insert2TradeDataChunk(chunk, t5)
+	if err != nil || len(chunk.Trades) != 2 || chunk.Trades[0].Curtime != 2 ||
+		chunk.Trades[1].Curtime != 5 {
+
+		t.Fatalf("TestInsert2TradeDataChunk 25 %v", chunk)
+
+		return
+	}
+
+	t3 := &tradingdatapb.TradeInfo{
+		Id:      "3",
+		Curtime: 3,
+	}
+
+	err = insert2TradeDataChunk(chunk, t3)
+	if err != nil || len(chunk.Trades) != 3 || chunk.Trades[0].Curtime != 2 ||
+		chunk.Trades[1].Curtime != 3 || chunk.Trades[2].Curtime != 5 {
+
+		t.Fatalf("TestInsert2TradeDataChunk 235 %v", chunk)
+
+		return
+	}
+
+	t1 := &tradingdatapb.TradeInfo{
+		Id:      "1",
+		Curtime: 1,
+	}
+
+	err = insert2TradeDataChunk(chunk, t1)
+	if err != nil || len(chunk.Trades) != 4 || chunk.Trades[0].Curtime != 1 ||
+		chunk.Trades[1].Curtime != 2 || chunk.Trades[2].Curtime != 3 ||
+		chunk.Trades[3].Curtime != 5 {
+
+		t.Fatalf("TestInsert2TradeDataChunk 1235 %v", chunk)
+
+		return
+	}
+
+	t6 := &tradingdatapb.TradeInfo{
+		Id:      "6",
+		Curtime: 6,
+	}
+
+	err = insert2TradeDataChunk(chunk, t6)
+	if err != nil || len(chunk.Trades) != 5 || chunk.Trades[0].Curtime != 1 ||
+		chunk.Trades[1].Curtime != 2 || chunk.Trades[2].Curtime != 3 ||
+		chunk.Trades[3].Curtime != 5 || chunk.Trades[4].Curtime != 6 {
+
+		t.Fatalf("TestInsert2TradeDataChunk 12356 %v", chunk)
+
+		return
+	}
+
+	t4 := &tradingdatapb.TradeInfo{
+		Id:      "4",
+		Curtime: 4,
+	}
+
+	err = insert2TradeDataChunk(chunk, t4)
+	if err != nil || len(chunk.Trades) != 6 || chunk.Trades[0].Curtime != 1 ||
+		chunk.Trades[1].Curtime != 2 || chunk.Trades[2].Curtime != 3 ||
+		chunk.Trades[3].Curtime != 4 || chunk.Trades[4].Curtime != 5 ||
+		chunk.Trades[5].Curtime != 6 {
+
+		t.Fatalf("TestInsert2TradeDataChunk 123456 %v", chunk)
+
+		return
+	}
+
+	err = insert2TradeDataChunk(chunk, t3)
+	if err != ErrInvalidTradeDataID {
+		t.Fatalf("TestInsert2TradeDataChunk 1233456 %v", chunk)
+
+		return
+	}
+
+	t7 := &tradingdatapb.TradeInfo{
+		Id:      "7",
+		Curtime: 3,
+	}
+
+	err = insert2TradeDataChunk(chunk, t7)
+	if err != nil || len(chunk.Trades) != 7 || chunk.Trades[0].Curtime != 1 ||
+		chunk.Trades[1].Curtime != 2 || chunk.Trades[2].Curtime != 3 ||
+		chunk.Trades[3].Curtime != 3 ||
+		chunk.Trades[4].Curtime != 4 || chunk.Trades[5].Curtime != 5 ||
+		chunk.Trades[6].Curtime != 6 {
+
+		t.Fatalf("TestInsert2TradeDataChunk 1233456 %v", chunk)
+
+		return
+	}
+
+	t.Logf("TestInsert2TradeDataChunk is OK")
+}
