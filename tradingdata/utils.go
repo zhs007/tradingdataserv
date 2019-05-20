@@ -8,25 +8,27 @@ import (
 )
 
 func makeTradeDataChunkKey(market string, symbol string, ts int64) string {
-	tm := time.Unix(ts, 0)
+	tm := time.Unix(ts/1000, 0)
 
-	return fmt.Sprintf("%v:%v:%v", market, symbol, tm.Format("20060102150405"))
+	return fmt.Sprintf("%v:%v:%v", market, symbol, tm.Format("20060102"))
 }
 
-func insertTradeData(lst *[]*tradingdatapb.TradeInfo, index int,
+func insertTradeData(lst []*tradingdatapb.TradeInfo, index int,
 	trade *tradingdatapb.TradeInfo) ([]*tradingdatapb.TradeInfo, error) {
 
 	if index <= 0 {
-		return append([]*tradingdatapb.TradeInfo{trade}, (*lst)[0:]...), nil
+		return append([]*tradingdatapb.TradeInfo{trade}, lst[0:]...), nil
 	}
 
-	if index >= len(*lst) {
-		return append(*lst, trade), nil
+	if index >= len(lst) {
+		return append(lst, trade), nil
 	}
 
-	lstf := append((*lst)[0:index], trade)
+	tmp := append([]*tradingdatapb.TradeInfo{}, lst[index:]...)
+	lstf := append(lst[0:index], trade)
 
-	return append(lstf, (*lst)[index:]...), nil
+	// return lstf, nil
+	return append(lstf, tmp[0:]...), nil
 }
 
 func insert2TradeDataChunk(chunk *tradingdatapb.TradeDataChunk,
@@ -40,7 +42,7 @@ func insert2TradeDataChunk(chunk *tradingdatapb.TradeDataChunk,
 		}
 
 		if v.Curtime > trade.Curtime {
-			lst, err := insertTradeData(&chunk.Trades, i, trade)
+			lst, err := insertTradeData(chunk.Trades, i, trade)
 			if err != nil {
 				return err
 			}
@@ -51,7 +53,7 @@ func insert2TradeDataChunk(chunk *tradingdatapb.TradeDataChunk,
 		}
 	}
 
-	lst, err := insertTradeData(&chunk.Trades, len(chunk.Trades), trade)
+	lst, err := insertTradeData(chunk.Trades, len(chunk.Trades), trade)
 	if err != nil {
 		return err
 	}
