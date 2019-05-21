@@ -63,24 +63,24 @@ func insert2TradeDataChunk(chunk *tradingdatapb.TradeDataChunk,
 	return nil
 }
 
-func getTradeDataWithDay(lst *[]*tradingdatapb.TradeInfo) ([]*tradingdatapb.TradeInfo,
+func getTradeDataWithDay(lst []*tradingdatapb.TradeInfo) ([]*tradingdatapb.TradeInfo,
 	[]*tradingdatapb.TradeInfo, int64, error) {
 
-	if len(*lst) <= 0 {
+	if len(lst) <= 0 {
 		return nil, nil, 0, nil
 	}
 
 	var lastlst []*tradingdatapb.TradeInfo
 	var retlst []*tradingdatapb.TradeInfo
 
-	ts := (*lst)[0].Curtime
-	tm := time.Unix(ts, 0)
-	td := tm.Format("20060102150405")
+	ts := lst[0].Curtime
+	tm := time.Unix(ts/1000, 0)
+	td := tm.Format("20060102")
 
-	for _, v := range *lst {
+	for _, v := range lst {
 		cts := v.Curtime
-		ctm := time.Unix(cts, 0)
-		ctd := ctm.Format("20060102150405")
+		ctm := time.Unix(cts/1000, 0)
+		ctd := ctm.Format("20060102")
 
 		if ctd == td {
 			retlst = append(retlst, v)

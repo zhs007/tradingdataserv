@@ -65,7 +65,7 @@ func (s *GRPCServer) SendTradeData(ctx context.Context,
 
 	lastlst := chunk.Trades
 	for {
-		retlst, lastlst, ts, err := getTradeDataWithDay(&lastlst)
+		retlst, lastlst, ts, err := getTradeDataWithDay(lastlst)
 		if err != nil {
 			jarvisbase.Error("GRPCServer.SendTradeData:getTradeDataWithDay",
 				zap.Error(err))

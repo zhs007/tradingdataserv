@@ -2,6 +2,7 @@ package tradingdata
 
 import (
 	"testing"
+	"time"
 
 	tradingdatapb "github.com/zhs007/tradingdataserv/proto"
 )
@@ -219,4 +220,69 @@ func TestInsert2TradeDataChunk(t *testing.T) {
 	}
 
 	t.Logf("TestInsert2TradeDataChunk is OK")
+}
+
+func TestGetTradeDataWithDay(t *testing.T) {
+	lst0 := []*tradingdatapb.TradeInfo{
+		&tradingdatapb.TradeInfo{
+			Curtime: 1558354301123,
+			Id:      "1",
+		},
+		&tradingdatapb.TradeInfo{
+			Curtime: 1558444102000,
+			Id:      "2",
+		},
+		&tradingdatapb.TradeInfo{
+			Curtime: 1558444333000,
+			Id:      "3",
+		},
+	}
+
+	lsttmstr := []string{
+		"20190520",
+		"20190521",
+	}
+
+	lstlen := []int{
+		1,
+		2,
+	}
+
+	i := 0
+	for {
+		retlst, lastlst, ts, err := getTradeDataWithDay(lst0)
+		if err != nil {
+			t.Fatalf("TestGetTradeDataWithDay getTradeDataWithDay %v %v", i, lst0)
+
+			return
+		}
+
+		tm := time.Unix(ts/1000, 0)
+		if tm.Format("20060102") != lsttmstr[i] {
+			t.Fatalf("TestGetTradeDataWithDay tm %v %v %v", lsttmstr[i], tm.Format("20060102"), ts)
+
+			return
+		}
+
+		if len(retlst) != lstlen[i] {
+			t.Fatalf("TestGetTradeDataWithDay len %v %v", len(retlst), lstlen[i])
+
+			return
+		}
+
+		if len(lastlst) == 0 {
+			break
+		}
+
+		if retlst == nil {
+			t.Fatalf("TestGetTradeDataWithDay retlst nil")
+
+			return
+		}
+
+		i = i + 1
+		lst0 = lastlst
+	}
+
+	t.Logf("TestGetTradeDataWithDay is OK")
 }
