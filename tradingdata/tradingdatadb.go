@@ -71,17 +71,17 @@ func (db *tradingDataDB) addTradeData(ctx context.Context, ts int64,
 		return 0, err
 	}
 
-	nums := 0
-	for _, v := range chunk.Trades {
-		err := insert2TradeDataChunk(srctrunk, v)
-		if err == nil {
-			nums = nums + 1
-			// jarvisbase.Warn("tradingDataDB.addTradeData:insert2TradeDataChunk",
-			// 	zap.Error(err))
+	nums, err := insertTradeDataChunk2TradeDataChunk(srctrunk, chunk)
+	// for _, v := range chunk.Trades {
+	// 	err := insert2TradeDataChunk(srctrunk, v)
+	// 	if err == nil {
+	// 		nums = nums + 1
+	// 		// jarvisbase.Warn("tradingDataDB.addTradeData:insert2TradeDataChunk",
+	// 		// 	zap.Error(err))
 
-			// return 0, err
-		}
-	}
+	// 		// return 0, err
+	// 	}
+	// }
 
 	buf, err := proto.Marshal(srctrunk)
 	if err != nil {

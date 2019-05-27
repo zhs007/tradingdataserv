@@ -4,4 +4,4 @@ package tradingdatabasedef
 const JARVISNODETYPE = "tradingdata.serv"
 
 // VERSION - version
-const VERSION = "0.1.9"
+const VERSION = "0.1.10"

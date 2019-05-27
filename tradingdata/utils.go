@@ -91,3 +91,18 @@ func getTradeDataWithDay(lst []*tradingdatapb.TradeInfo) ([]*tradingdatapb.Trade
 
 	return retlst, lastlst, ts, nil
 }
+
+func insertTradeDataChunk2TradeDataChunk(destchunk *tradingdatapb.TradeDataChunk,
+	srcchunk *tradingdatapb.TradeDataChunk) (int, error) {
+
+	nums := 0
+
+	for _, v := range srcchunk.Trades {
+		err := insert2TradeDataChunk(destchunk, v)
+		if err == nil {
+			nums = nums + 1
+		}
+	}
+
+	return nums, nil
+}

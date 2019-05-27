@@ -286,3 +286,58 @@ func TestGetTradeDataWithDay(t *testing.T) {
 
 	t.Logf("TestGetTradeDataWithDay is OK")
 }
+
+func TestInsertTradeDataChunk2TradeDataChunk(t *testing.T) {
+
+	chunk1 := &tradingdatapb.TradeDataChunk{}
+	chunk1.Trades = append(chunk1.Trades, &tradingdatapb.TradeInfo{
+		Id:      "2",
+		Curtime: 2,
+	})
+	chunk1.Trades = append(chunk1.Trades, &tradingdatapb.TradeInfo{
+		Id:      "3",
+		Curtime: 3,
+	})
+	chunk1.Trades = append(chunk1.Trades, &tradingdatapb.TradeInfo{
+		Id:      "5",
+		Curtime: 5,
+	})
+
+	chunk2 := &tradingdatapb.TradeDataChunk{}
+	chunk2.Trades = append(chunk2.Trades, &tradingdatapb.TradeInfo{
+		Id:      "1",
+		Curtime: 1,
+	})
+	chunk2.Trades = append(chunk2.Trades, &tradingdatapb.TradeInfo{
+		Id:      "4",
+		Curtime: 4,
+	})
+	chunk2.Trades = append(chunk2.Trades, &tradingdatapb.TradeInfo{
+		Id:      "6",
+		Curtime: 6,
+	})
+
+	nums, err := insertTradeDataChunk2TradeDataChunk(chunk1, chunk2)
+	if err != nil {
+		t.Fatalf("TestInsertTradeDataChunk2TradeDataChunk insertTradeDataChunk2TradeDataChunk %v",
+			err)
+
+		return
+	}
+
+	if nums != 3 {
+		t.Fatalf("TestInsertTradeDataChunk2TradeDataChunk nums %v",
+			nums)
+
+		return
+	}
+
+	for k, v := range chunk1.Trades {
+		if v.Curtime != int64(k+1) {
+			t.Fatalf("TestInsertTradeDataChunk2TradeDataChunk index %v:%v",
+				v.Curtime, k)
+		}
+	}
+
+	t.Logf("TestInsertTradeDataChunk2TradeDataChunk is OK")
+}
